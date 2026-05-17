@@ -1,0 +1,91 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" role="img" aria-labelledby="title desc">
+  <title id="title">Lunar Focus logo</title>
+  <desc id="desc">A dark square logo with a warm moon orbit mark and the words Lunar Focus.</desc>
+  <defs>
+    <radialGradient id="bgGlow" cx="50%" cy="38%" r="72%">
+      <stop offset="0%" stop-color="#192047"/>
+      <stop offset="62%" stop-color="#070b24"/>
+      <stop offset="100%" stop-color="#030719"/>
+    </radialGradient>
+    <linearGradient id="planet" x1="260" y1="160" x2="735" y2="622" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#3f2a82"/>
+      <stop offset="48%" stop-color="#b3495f"/>
+      <stop offset="100%" stop-color="#ffb64f"/>
+    </linearGradient>
+    <linearGradient id="gold" x1="260" y1="530" x2="790" y2="406" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#ff8f43"/>
+      <stop offset="55%" stop-color="#ffd07a"/>
+      <stop offset="100%" stop-color="#ff8e35"/>
+    </linearGradient>
+    <linearGradient id="tagline" x1="260" y1="857" x2="764" y2="857" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#8fb5ef"/>
+      <stop offset="50%" stop-color="#ff9d44"/>
+      <stop offset="100%" stop-color="#9c79d9"/>
+    </linearGradient>
+    <filter id="softShadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="22" stdDeviation="26" flood-color="#000000" flood-opacity="0.35"/>
+    </filter>
+    <filter id="warmGlow" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="0" stdDeviation="18" flood-color="#ffae4a" flood-opacity="0.42"/>
+    </filter>
+  </defs>
+
+  <rect width="1024" height="1024" fill="url(#bgGlow)"/>
+  <g filter="url(#softShadow)">
+    <circle cx="512" cy="322" r="214" fill="url(#planet)"/>
+    <circle cx="512" cy="322" r="214" fill="none" stroke="#ffffff" stroke-opacity="0.08" stroke-width="2"/>
+
+    <path d="M366 221
+             C313 280 302 365 334 438
+             C366 511 437 555 514 554
+             C564 553 612 536 653 503
+             C604 591 493 630 399 590
+             C303 548 252 440 285 341
+             C299 298 326 256 366 221Z"
+          fill="#fffaf2"/>
+
+    <circle cx="644" cy="277" r="31" fill="#fffaf2"/>
+    <ellipse cx="644" cy="277" rx="56" ry="13" fill="none" stroke="#fffaf2" stroke-width="7" transform="rotate(-22 644 277)"/>
+    <ellipse cx="512" cy="462" rx="286" ry="52" fill="none" stroke="url(#gold)" stroke-width="9" transform="rotate(-7 512 462)"/>
+    <circle cx="721" cy="438" r="30" fill="#ffd075" stroke="#fff6df" stroke-width="6" filter="url(#warmGlow)"/>
+
+    <circle cx="346" cy="368" r="7" fill="#ffb25d"/>
+    <circle cx="375" cy="432" r="7" fill="#ffb25d"/>
+    <circle cx="362" cy="472" r="5" fill="#ffb25d"/>
+    <circle cx="458" cy="242" r="4" fill="#ffffff"/>
+    <circle cx="612" cy="350" r="4" fill="#ffffff"/>
+    <circle cx="680" cy="228" r="3" fill="#ffffff"/>
+    <circle cx="590" cy="424" r="4" fill="#ffffff"/>
+    <circle cx="408" cy="290" r="3" fill="#ffffff"/>
+
+    <path d="M512 198 L522 222 L546 232 L522 242 L512 266 L502 242 L478 232 L502 222Z" fill="#ffffff"/>
+    <path d="M533 329 L542 350 L563 359 L542 368 L533 389 L524 368 L503 359 L524 350Z" fill="#ffffff"/>
+    <path d="M583 406 L589 421 L604 427 L589 433 L583 448 L577 433 L562 427 L577 421Z" fill="#ffffff"/>
+  </g>
+
+  <g text-anchor="middle">
+    <text x="512" y="725"
+          fill="#f7f7fb"
+          font-family="Inter, Avenir Next, Helvetica, Arial, sans-serif"
+          font-size="98"
+          font-weight="300"
+          letter-spacing="45">LUNAR</text>
+    <text x="512" y="812"
+          fill="#ffca78"
+          font-family="Inter, Avenir Next, Helvetica, Arial, sans-serif"
+          font-size="56"
+          font-weight="400"
+          letter-spacing="38">FOCUS</text>
+    <text x="512" y="876"
+          fill="url(#tagline)"
+          font-family="Inter, Avenir Next, Helvetica, Arial, sans-serif"
+          font-size="25"
+          font-weight="700"
+          letter-spacing="18">FOCUS  PLAN  ACHIEVE</text>
+  </g>
+
+  <g fill="#ffcb76">
+    <path d="M255 792 L266 819 L293 830 L266 841 L255 868 L244 841 L217 830 L244 819Z"/>
+    <path d="M771 792 L779 812 L799 820 L779 828 L771 848 L763 828 L743 820 L763 812Z"/>
+  </g>
+</svg>
