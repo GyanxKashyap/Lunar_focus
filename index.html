@@ -3622,13 +3622,67 @@
       min-width: 120px;
     }
 
+    .owner-lock-panel {
+      width: min(460px, 100%);
+      display: grid;
+      gap: 16px;
+      text-align: left;
+    }
+
+    .owner-lock-visual {
+      width: 68px;
+      height: 68px;
+      display: grid;
+      place-items: center;
+      border-radius: 24px;
+      background: linear-gradient(145deg, var(--red), var(--red-dark));
+      color: #fff;
+      font-size: 1.8rem;
+      box-shadow: 0 20px 44px rgba(var(--accent-rgb), 0.22);
+    }
+
+    .owner-lock-title {
+      color: var(--ink);
+      font-size: 1.65rem;
+      line-height: 1.08;
+      font-weight: 950;
+      letter-spacing: 0;
+    }
+
+    .owner-lock-copy {
+      color: var(--muted);
+      line-height: 1.48;
+      font-weight: 750;
+    }
+
+    .owner-lock-actions {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .owner-lock-actions .input {
+      min-height: 48px;
+      border-radius: 999px;
+      padding-inline: 18px;
+    }
+
+    .owner-lock-footer {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
     @media (max-width: 760px) {
       .review-grid {
         grid-template-columns: repeat(2, minmax(0, 1fr));
       }
 
       .onboarding-top,
-      .onboarding-actions {
+      .onboarding-actions,
+      .owner-lock-actions {
         display: grid;
         grid-template-columns: 1fr;
       }
@@ -6381,6 +6435,24 @@
     </div>
   </div>
 
+  <div class="store-modal owner-lock-modal" id="ownerLockModal" aria-hidden="true" role="dialog" aria-labelledby="ownerLockTitle">
+    <div class="store-panel owner-lock-panel">
+      <div class="owner-lock-visual">♛</div>
+      <div>
+        <h2 class="owner-lock-title" id="ownerLockTitle">Owner Access</h2>
+        <p class="owner-lock-copy">This console controls test tokens, max rank, unlocks, and store testing. Enter the owner password to continue.</p>
+      </div>
+      <div class="owner-lock-actions">
+        <input class="input" id="ownerPasswordInput" type="password" autocomplete="current-password" placeholder="Owner password" />
+        <button class="review-primary-btn" type="button" onclick="submitOwnerPassword()">Unlock</button>
+      </div>
+      <div class="lock-status" id="ownerLockStatus">Owner tab is locked.</div>
+      <div class="owner-lock-footer">
+        <button class="ghost-btn" type="button" onclick="closeOwnerLock()">Cancel</button>
+      </div>
+    </div>
+  </div>
+
   <script>
     const STORAGE = {
       streak: 'focus_streak',
@@ -6402,6 +6474,9 @@
       onboardingSeen: 'lunar_onboarding_seen_v1'
     };
     const DATA_BACKUP_VERSION = 1;
+    const OWNER_PASSWORD_HASH = '01fb7ef0e1283fa2b6edd86e1e9826fbd984f4d06bfddafb8be09a79e309c81c';
+    const OWNER_PASSWORD_FALLBACK = 'bWFob3JhZ2E=';
+    const OWNER_UNLOCK_KEY = 'lunar_owner_unlocked_session_v1';
     const DAILY_STREAK_SECONDS = 30 * 60;
     const MAX_ORBIT_RINGS = 7;
     const COUNT_HALF_MOON_SECONDS = 30 * 60;
@@ -6690,6 +6765,8 @@
     let activeSession = null;
     let pendingLockAction = null;
     let onboardingStepIndex = 0;
+    let ownerUnlockedThisSession = false;
+    let pendingOwnerView = 'owner';
 
     let streak = Number(localStorage.getItem(STORAGE.streak)) || 0;
     let trees = Number(localStorage.getItem(STORAGE.trees)) || 0;
@@ -6730,6 +6807,9 @@
     const onboardingDots = document.getElementById('onboardingDots');
     const onboardingBackBtn = document.getElementById('onboardingBackBtn');
     const onboardingNextBtn = document.getElementById('onboardingNextBtn');
+    const ownerLockModal = document.getElementById('ownerLockModal');
+    const ownerPasswordInput = document.getElementById('ownerPasswordInput');
+    const ownerLockStatus = document.getElementById('ownerLockStatus');
     const tree = document.getElementById('tree');
     const treeZone = document.querySelector('.tree-zone');
     const treeStage = document.getElementById('treeStage');
@@ -6968,6 +7048,73 @@
       quote.innerText = 'Tutorial will show again after the next opening screen.';
     }
 
+    function isOwnerUnlocked() {
+      try {
+        return ownerUnlockedThisSession || sessionStorage.getItem(OWNER_UNLOCK_KEY) === 'true';
+      } catch (error) {
+        return ownerUnlockedThisSession;
+      }
+    }
+
+    function rememberOwnerUnlock() {
+      ownerUnlockedThisSession = true;
+      try {
+        sessionStorage.setItem(OWNER_UNLOCK_KEY, 'true');
+      } catch (error) {
+        ownerUnlockedThisSession = true;
+      }
+    }
+
+    function openOwnerLock() {
+      pendingOwnerView = 'owner';
+      ownerPasswordInput.value = '';
+      ownerLockStatus.innerText = 'Owner tab is locked.';
+      ownerLockModal.classList.add('open');
+      ownerLockModal.setAttribute('aria-hidden', 'false');
+      setTimeout(() => ownerPasswordInput.focus(), 0);
+      quote.innerText = 'Owner Console is locked. Enter the owner password to continue.';
+    }
+
+    function closeOwnerLock() {
+      ownerLockModal.classList.remove('open');
+      ownerLockModal.setAttribute('aria-hidden', 'true');
+      ownerPasswordInput.value = '';
+    }
+
+    async function getSHA256Hex(value) {
+      if (!window.crypto?.subtle || !window.TextEncoder) return '';
+
+      const bytes = new TextEncoder().encode(value);
+      const digest = await window.crypto.subtle.digest('SHA-256', bytes);
+      return Array.from(new Uint8Array(digest))
+        .map((byte) => byte.toString(16).padStart(2, '0'))
+        .join('');
+    }
+
+    async function isOwnerPasswordValid(value) {
+      const password = value.trim();
+      const hashedPassword = await getSHA256Hex(password);
+
+      if (hashedPassword) return hashedPassword === OWNER_PASSWORD_HASH;
+      return password === atob(OWNER_PASSWORD_FALLBACK);
+    }
+
+    async function submitOwnerPassword() {
+      const isValid = await isOwnerPasswordValid(ownerPasswordInput.value);
+
+      if (!isValid) {
+        ownerLockStatus.innerText = 'Wrong password. Owner access stayed locked.';
+        ownerPasswordInput.select();
+        quote.innerText = 'Owner password was incorrect.';
+        return;
+      }
+
+      rememberOwnerUnlock();
+      closeOwnerLock();
+      setDashboardView(pendingOwnerView);
+      quote.innerText = 'Owner Console unlocked for this browser session.';
+    }
+
     function saveSettingsName() {
       if (!saveUserName(settingsNameInput.value)) {
         settingsNameInput.focus();
@@ -6978,6 +7125,11 @@
     }
 
     function setDashboardView(view) {
+      if (view === 'owner' && !isOwnerUnlocked()) {
+        openOwnerLock();
+        return;
+      }
+
       document.querySelectorAll('.view-panel').forEach((panel) => {
         panel.classList.toggle('active', panel.dataset.view === view);
       });
@@ -10180,6 +10332,14 @@
       if (event.target === onboardingModal) skipOnboarding();
     });
 
+    ownerLockModal.addEventListener('click', (event) => {
+      if (event.target === ownerLockModal) closeOwnerLock();
+    });
+
+    ownerPasswordInput.addEventListener('keydown', (event) => {
+      if (event.key === 'Enter') submitOwnerPassword();
+    });
+
     document.addEventListener('keydown', (event) => {
       if (event.key === 'Escape' && treeStoreModal?.classList.contains('open')) {
         closeTreeStore();
@@ -10191,6 +10351,10 @@
 
       if (event.key === 'Escape' && onboardingModal.classList.contains('open')) {
         skipOnboarding();
+      }
+
+      if (event.key === 'Escape' && ownerLockModal.classList.contains('open')) {
+        closeOwnerLock();
       }
     });
 
