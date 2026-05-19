@@ -1,2 +1,3 @@
 # Lunar_focus
-Lunar_focus is a study timer made for you to detect and define your time
+
+A space-themed productivity app with focus timer and habit-building tools.
